@@ -100,7 +100,7 @@
       #image: osirixfoundation/kheops-authorization:remove_JOOQ
       #image: osirixfoundation/kheops-authorization:dev
       #image: osirixfoundation/kheops-authorization:authorizationdev
-      image: osirixfoundation/kheops-authorization:authorization_remove_JOOQ
+      image: osirixfoundation/kheops-authorization:demo
       env_file: docker-compose.env
       environment:
         KHEOPS_OIDC_PROVIDER: http://keycloak:8080/auth/realms/kheops
@@ -130,14 +130,14 @@
   
     kheops-ui:
       container_name: kheopsui
-      image: osirixfoundation/kheops-ui:webhook_new_event
+      image: osirixfoundation/kheops-ui:demo
       env_file: docker-compose.env
       networks:
         - frontend_network
   
     kheops-dicomweb-proxy:
       container_name: kheopsdicomwebproxy
-      image: osirixfoundation/kheops-dicomweb-proxy:v0.9.5
+      image: osirixfoundation/kheops-dicomweb-proxy:demo
       env_file: docker-compose.env
       secrets:
         - kheops_auth_hmasecret_post
@@ -148,7 +148,7 @@
     kheops-reverse-proxy:
       #image: osirixfoundation/kheops-reverse-proxy:v0.9.5-insecure
       #image: osirixfoundation/kheops-reverse-proxy:test
-      image: osirixfoundation/kheops-reverse-proxy:main-ci-test
+      image: osirixfoundation/kheops-reverse-proxy:demo-ci-test
       #image: osirixfoundation/kheops-reverse-proxy:ci-test
       container_name: kheopsreverseproxy
       env_file: docker-compose.env
@@ -169,7 +169,7 @@
     pacs-authorization-proxy:
       container_name: pacsauthorizationproxy
       env_file: docker-compose.env
-      image: osirixfoundation/pacs-authorization-proxy:v0.9.5
+      image: osirixfoundation/pacs-authorization-proxy:demo
       depends_on:
         - pacs-arc
       secrets:
