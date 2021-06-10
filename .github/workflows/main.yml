@@ -19,6 +19,7 @@ jobs:
           chmod +x script_run_docker.sh 
           chmod +x script_edit_postman_json.sh
           chmod +x script_clean_db.sh
+          chmod +x script_wait_docker_start.sh
           ./script_run_docker.sh
           ./script_edit_postman_json.sh
           
