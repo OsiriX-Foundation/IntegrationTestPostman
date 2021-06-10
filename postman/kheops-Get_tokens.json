@@ -1,0 +1,760 @@
+{
+  "info": {
+    "_postman_id": "d0aa26a1-d91b-4f92-9ded-72c00b2e8a5c",
+    "name": "kheops-Get_tokens",
+    "schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "well-known master",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "id": "5fee9022-a2dd-44dc-9cc9-04dd8888775b",
+            "exec": [
+              "var jsonObject = JSON.parse(responseBody);",
+              "",
+              "pm.globals.set(\"issuer\", jsonObject.issuer);",
+              "pm.globals.set(\"authorization_endpoint\", jsonObject.authorization_endpoint);",
+              "pm.globals.set(\"token_endpoint\", jsonObject.token_endpoint);",
+              "pm.globals.set(\"token_introspection_endpoint\", jsonObject.token_introspection_endpoint);",
+              "pm.globals.set(\"userinfo_endpoint\", jsonObject.userinfo_endpoint);",
+              "pm.globals.set(\"end_session_endpoint\", jsonObject.end_session_endpoint);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "_postman_id": "8f561a49-3d23-494b-8547-5254366c4187",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "http://localhost:8080/auth/realms/master/.well-known/openid-configuration"
+      },
+      "response": []
+    },
+    {
+      "name": "Get keycloak admin token",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "id": "ce4d3909-6895-4a2b-b418-fc8430343f79",
+            "exec": [
+              "tests[\"Status code is 200\"] = responseCode.code === 200;\r",
+              "\r",
+              "var jsonObject = JSON.parse(responseBody);\r",
+              "\r",
+              "pm.globals.set(\"keycloak_admin_access_token\", jsonObject.access_token);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "_postman_id": "eec01891-50d9-4d7f-9f1a-db9c9672c7f1",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/x-www-form-urlencoded",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "grant_type",
+              "value": "password",
+              "type": "text"
+            },
+            {
+              "key": "username",
+              "value": "admin",
+              "type": "text"
+            },
+            {
+              "key": "password",
+              "value": "admin",
+              "type": "text"
+            },
+            {
+              "key": "client_id",
+              "value": "admin-cli",
+              "type": "text"
+            }
+          ],
+          "options": {
+            "urlencoded": {}
+          }
+        },
+        "url": "{{token_endpoint}}"
+      },
+      "response": []
+    },
+    {
+      "name": "register user in keycloak toto",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "id": "443bad5f-0d0a-41ad-8376-7d9017668741",
+            "exec": [
+              "tests[\"Status code is 201 or 409\"] = responseCode.code === 201  || responseCode.code ===  409;\r",
+              "\r",
+              "tests[\"[INFO] Response: \" + responseBody] = true;\r",
+              "\r",
+              "if (responseCode.code == 201) {\r",
+              "   pm.globals.set(\"user_location\", postman.getResponseHeader(\"Location\"));\r",
+              "} else {\r",
+              "   postman.setNextRequest(\"register user in keycloak titi\")\r",
+              "}\r",
+              ""
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "_postman_id": "ca9c8d3a-6a81-464b-86da-6840675ff168",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": {
+            "token": "{{keycloak_admin_access_token}}"
+          }
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json;charset=UTF-8",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"enabled\":true, \"attributes\":{}, \"username\":\"toto\", \"emailVerified\":true,\"email\":\"toto@gmail.com\", \"firstName\":\"toto\", \"lastName\":\"toto\"}",
+          "options": {
+            "raw": {}
+          }
+        },
+        "url": "http://localhost:8080/auth/admin/realms/kheops/users"
+      },
+      "response": []
+    },
+    {
+      "name": "toto set password",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "id": "50e9038c-b56b-47a2-bda2-a3ea58c3af1e",
+            "exec": [
+              "tests[\"Status code is 204\"] = responseCode.code === 204;"
+            ],
+            "type": "text/javascript"
+          }
+        },
+        {
+          "listen": "prerequest",
+          "script": {
+            "id": "2f61ead5-968a-4e93-bb15-86b07df02493",
+            "exec": [
+              ""
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "_postman_id": "f7cf0ff2-f282-42cd-be4a-d3ea54460a44",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": {
+            "token": "{{keycloak_admin_access_token}}"
+          }
+        },
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json;charset=UTF-8",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"type\":\"password\", \"value\":\"toto\", \"temporary\":false}",
+          "options": {
+            "raw": {}
+          }
+        },
+        "url": "{{user_location}}/reset-password"
+      },
+      "response": []
+    },
+    {
+      "name": "register user in keycloak titi",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "id": "eb5ae1e7-798a-4488-a38d-1d75f4a9a1f2",
+            "exec": [
+              "tests[\"Status code is 201 or 409\"] = responseCode.code === 201  || responseCode.code ===  409;\r",
+              "\r",
+              "tests[\"[INFO] Response: \" + responseBody] = true;\r",
+              "\r",
+              "if (responseCode.code == 201) {\r",
+              "   pm.globals.set(\"user_location\", postman.getResponseHeader(\"Location\"));\r",
+              "} else {\r",
+              "   postman.setNextRequest(\"register user in keycloak tata\")\r",
+              "}\r",
+              ""
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "_postman_id": "5f2c706d-837e-43f1-826a-588b6863afe7",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": {
+            "token": "{{keycloak_admin_access_token}}"
+          }
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "type": "text",
+            "value": "application/json;charset=UTF-8"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"enabled\":true, \"attributes\":{}, \"username\":\"titi\", \"emailVerified\":true,\"email\":\"titi@gmail.com\", \"firstName\":\"titi\", \"lastName\":\"titi\"}",
+          "options": {
+            "raw": {}
+          }
+        },
+        "url": "http://localhost:8080/auth/admin/realms/kheops/users"
+      },
+      "response": []
+    },
+    {
+      "name": "titi set password",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "id": "bd0014ba-98bd-467c-a43b-105e9bb892dc",
+            "exec": [
+              "tests[\"Status code is 204\"] = responseCode.code === 204;"
+            ],
+            "type": "text/javascript"
+          }
+        },
+        {
+          "listen": "prerequest",
+          "script": {
+            "id": "11b5b491-cfc4-475c-9535-6a41540c2488",
+            "exec": [
+              ""
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "_postman_id": "1a659ec3-ceda-4bec-aa96-753fa7cf24f9",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": {
+            "token": "{{keycloak_admin_access_token}}"
+          }
+        },
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "type": "text",
+            "value": "application/json;charset=UTF-8"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"type\":\"password\", \"value\":\"titi\", \"temporary\":false}",
+          "options": {
+            "raw": {}
+          }
+        },
+        "url": "{{user_location}}/reset-password"
+      },
+      "response": []
+    },
+    {
+      "name": "register user in keycloak tata",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "id": "60fe71b7-6a1d-41c0-8213-b8ecb864aa77",
+            "exec": [
+              "tests[\"Status code is 201 or 409\"] = responseCode.code === 201  || responseCode.code ===  409;\r",
+              "\r",
+              "tests[\"[INFO] Response: \" + responseBody] = true;\r",
+              "\r",
+              "if (responseCode.code == 201) {\r",
+              "   pm.globals.set(\"user_location\", postman.getResponseHeader(\"Location\"));\r",
+              "} else {\r",
+              "   postman.setNextRequest(\"well-known\")\r",
+              "}\r",
+              ""
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "_postman_id": "50f310cf-f882-4478-9687-aeb27dfdcbdf",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": {
+            "token": "{{keycloak_admin_access_token}}"
+          }
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json;charset=UTF-8",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"enabled\":true, \"attributes\":{}, \"username\":\"tata\", \"emailVerified\":true,\"email\":\"tata@gmail.com\", \"firstName\":\"tata\", \"lastName\":\"tata\"}",
+          "options": {
+            "raw": {}
+          }
+        },
+        "url": "http://localhost:8080/auth/admin/realms/kheops/users"
+      },
+      "response": []
+    },
+    {
+      "name": "tata set password",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "id": "05c6d6d4-f477-4a12-8e49-e4d13cc8203d",
+            "exec": [
+              "tests[\"Status code is 204\"] = responseCode.code === 204;"
+            ],
+            "type": "text/javascript"
+          }
+        },
+        {
+          "listen": "prerequest",
+          "script": {
+            "id": "470da3a6-66f8-4956-98a7-a34c51ad6d81",
+            "exec": [
+              ""
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "_postman_id": "b15658c2-75c7-4e4c-a86c-2d9a82794381",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": {
+            "token": "{{keycloak_admin_access_token}}"
+          }
+        },
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "type": "text",
+            "value": "application/json;charset=UTF-8"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"type\":\"password\", \"value\":\"tata\", \"temporary\":false}",
+          "options": {
+            "raw": {}
+          }
+        },
+        "url": "{{user_location}}/reset-password"
+      },
+      "response": []
+    },
+    {
+      "name": "well-known",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "id": "ddcb929e-d97b-43a0-8d3c-d8af22b21dc1",
+            "exec": [
+              "var jsonObject = JSON.parse(responseBody);",
+              "",
+              "pm.globals.set(\"issuer\", jsonObject.issuer);",
+              "pm.globals.set(\"authorization_endpoint\", jsonObject.authorization_endpoint);",
+              "pm.globals.set(\"token_endpoint\", jsonObject.token_endpoint);",
+              "pm.globals.set(\"token_introspection_endpoint\", jsonObject.token_introspection_endpoint);",
+              "pm.globals.set(\"userinfo_endpoint\", jsonObject.userinfo_endpoint);",
+              "pm.globals.set(\"end_session_endpoint\", jsonObject.end_session_endpoint);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "_postman_id": "fcdb8193-2f2a-4eec-9f38-4fee663e4f99",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "http://localhost:8080/auth/realms/kheops/.well-known/openid-configuration"
+      },
+      "response": []
+    },
+    {
+      "name": "get token user 1 (titi)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "id": "50c68d5b-2494-46c3-bda5-9e12fad984ca",
+            "exec": [
+              "var jsonObject = JSON.parse(responseBody);",
+              "",
+              "pm.globals.set(\"user1_token\", jsonObject.access_token);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "_postman_id": "6bbb7de9-4cfa-4e78-9de4-312f1476093f",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "name": "Content-Type",
+            "value": "application/x-www-form-urlencoded",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "grant_type",
+              "value": "password",
+              "type": "text"
+            },
+            {
+              "key": "username",
+              "value": "titi",
+              "type": "text"
+            },
+            {
+              "key": "password",
+              "value": "titi",
+              "type": "text"
+            },
+            {
+              "key": "client_id",
+              "value": "loginConnect",
+              "type": "text"
+            }
+          ]
+        },
+        "url": "{{token_endpoint}}"
+      },
+      "response": []
+    },
+    {
+      "name": "get token user 2 (toto)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "id": "50c68d5b-2494-46c3-bda5-9e12fad984ca",
+            "exec": [
+              "var jsonObject = JSON.parse(responseBody);",
+              "",
+              "pm.globals.set(\"user2_token\", jsonObject.access_token);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "_postman_id": "3dc5308f-da71-47a8-a005-84d2d807b593",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "name": "Content-Type",
+            "type": "text",
+            "value": "application/x-www-form-urlencoded"
+          }
+        ],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "grant_type",
+              "type": "text",
+              "value": "password"
+            },
+            {
+              "key": "username",
+              "type": "text",
+              "value": "toto"
+            },
+            {
+              "key": "password",
+              "type": "text",
+              "value": "toto"
+            },
+            {
+              "key": "client_id",
+              "type": "text",
+              "value": "loginConnect"
+            }
+          ]
+        },
+        "url": "{{token_endpoint}}"
+      },
+      "response": []
+    },
+    {
+      "name": "get token user 3 (tata)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "id": "50c68d5b-2494-46c3-bda5-9e12fad984ca",
+            "exec": [
+              "var jsonObject = JSON.parse(responseBody);",
+              "",
+              "pm.globals.set(\"user3_token\", jsonObject.access_token);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "_postman_id": "122f7513-e4a3-48a5-93e2-04bd41ccc6c8",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "name": "Content-Type",
+            "value": "application/x-www-form-urlencoded",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "grant_type",
+              "value": "password",
+              "type": "text"
+            },
+            {
+              "key": "username",
+              "value": "tata",
+              "type": "text"
+            },
+            {
+              "key": "password",
+              "value": "tata",
+              "type": "text"
+            },
+            {
+              "key": "client_id",
+              "value": "loginConnect",
+              "type": "text"
+            }
+          ]
+        },
+        "url": "{{token_endpoint}}"
+      },
+      "response": []
+    },
+    {
+      "name": "register titi",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "id": "866bf225-366a-432a-a7d6-62c91a16a27d",
+            "exec": [
+              "tests[\"Status code is 200\"] = responseCode.code === 200;\r",
+              "\r",
+              "var jsonObject = JSON.parse(responseBody);\r",
+              "\r",
+              "pm.globals.set(\"user1_id\", jsonObject.sub);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "_postman_id": "8bb2e0ea-8986-4e04-9837-f3980d4bf1e6",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "access_token",
+              "value": "{{user1_token}}",
+              "type": "text"
+            }
+          ],
+          "options": {
+            "urlencoded": {}
+          }
+        },
+        "url": "{{URL}}/register"
+      },
+      "response": []
+    },
+    {
+      "name": "register toto",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "id": "01ef1e50-3636-4c69-b06d-6977deb4c3e8",
+            "exec": [
+              "tests[\"Status code is 200\"] = responseCode.code === 200;\r",
+              "\r",
+              "var jsonObject = JSON.parse(responseBody);\r",
+              "\r",
+              "pm.globals.set(\"user2_id\", jsonObject.sub);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "_postman_id": "9219732b-c767-4a83-8c94-11e59caa6b62",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "access_token",
+              "type": "text",
+              "value": "{{user2_token}}"
+            }
+          ],
+          "options": {
+            "urlencoded": {}
+          }
+        },
+        "url": "{{URL}}/register"
+      },
+      "response": []
+    },
+    {
+      "name": "register tata",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "id": "c1133789-73de-42f4-99d0-37ae6210a7c9",
+            "exec": [
+              "tests[\"Status code is 200\"] = responseCode.code === 200;\r",
+              "\r",
+              "var jsonObject = JSON.parse(responseBody);\r",
+              "\r",
+              "pm.globals.set(\"user3_id\", jsonObject.sub);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "_postman_id": "4d2bc9f9-2bc9-479f-b889-b138c1170d89",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "access_token",
+              "value": "{{user3_token}}",
+              "type": "text"
+            }
+          ],
+          "options": {
+            "urlencoded": {}
+          }
+        },
+        "url": "{{URL}}/register"
+      },
+      "response": []
+    }
+  ]
+}
