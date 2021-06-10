@@ -172,6 +172,8 @@
       image: osirixfoundation/pacs-authorization-proxy:demo
       depends_on:
         - pacs-arc
+      volumes:
+        - logs_pep:/var/log/nginx
       secrets:
         - kheops_auth_hmasecret
         - kheops_auth_hmasecret_post
@@ -201,6 +203,7 @@
     dcm4chee-arc-wildfly:
     dcm4chee-arc-storage:
     kheops-db-data:
+    logs_pep:
   
   networks:
   # Network used for communication between the backend KHEOPS components
